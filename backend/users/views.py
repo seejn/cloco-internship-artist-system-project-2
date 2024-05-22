@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 from .models import CustomUser, ArtistDetail
 from .serializers import ArtistSerializer, UserSerializer
+from song.serializer import SongSerializer
 
 
 # CREATE USER METHODS
@@ -141,3 +142,55 @@ def delete_user(request, user_id):
     user = UserSerializer(user)
     return JsonResponse({"message": "user deleted", "data": user}, status=200)
     
+
+# view artist's song
+def get_songs(request, user_id):
+    try:
+        user = CustomUser.artist.get(pk=user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({"message": "user not found"}, status=404)
+    
+    songs = user.song.all()
+    if not songs:
+        return JsonResponse({"message": "Music not availabe"}, status=404)
+        
+    songs = [SongSerializer(song) for song in songs]
+    return JsonResponse({"message": "Artist's songs", "data": songs}, status=200)
+
+@csrf_exempt
+def update_song(request, user_id, song_id):
+    try:
+        user = CustomUser.artist.get(pk=user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({"message": "user not found"}, status=404)
+    
+    song = user.song.get(pk=song_id)
+    if not song:
+        return JsonResponse({"message": "Music not availabe"}, status=404)
+        
+    updated_song = dict(request.POST)
+    updated_song ={k: v[0] for k,v in updated_song.items()}
+    print(updated_song)
+
+    song.__dict__.update(updated_song)
+    song.save()
+    updated_song = SongSerializer(song)
+    
+    return JsonResponse({"message": "Song Updated", "data": updated_song}, status=200)
+
+@csrf_exempt
+def delete_song(request, user_id, song_id):
+    try:
+        user = CustomUser.artist.get(pk=user_id)
+    except ObjectDoesNotExist:
+        return JsonResponse({"message": "user not found"}, status=404)
+
+    try:
+        print(song_id)
+        song = user.song.get(pk=song_id)
+    except:
+        return JsonResponse({"message": "Music not availabe"}, status=404)
+    song.delete()
+
+    deleted_song = SongSerializer(song)
+    return JsonResponse({"message": "Song Deleted", "data": deleted_song}, status=200)

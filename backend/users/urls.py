@@ -14,4 +14,8 @@ urlpatterns = [
     path('delete_artist/<int:artist_id>/', views.delete_artist, name='delete_artist'),
     path('delete_user/<int:user_id>/', views.delete_user, name='delete_user'),
 
+    path("<int:user_id>/get_songs/", views.get_songs, name="view_user_songs"),
+    path("<int:user_id>/update_song/<int:song_id>/", views.update_song, name="view_user_song"),
+    path("<int:user_id>/delete_song/<int:song_id>/", views.delete_song, name="delete_user_song"),
+
 ]
