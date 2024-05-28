@@ -30,7 +30,7 @@ class AdminManager(models.Manager):
         return super().get_queryset().filter(is_admin=True).filter(is_deleted=False)
 
 class ArtistManager(models.Manager):
-    def create(self, email, password, **kwargs):
+    def create(self, email, password="artist@1122", **kwargs):
         if not email:
             raise ValueError("Email is required")
         
